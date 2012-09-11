@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2010 Kasper SkÃ¥rhÃ¸j <kaska@llab.dtu.dk>
+*  (c) 2010 Kasper Skårhøj <kaska@llab.dtu.dk>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -24,7 +24,7 @@
 /**
  * Plugin 'Enote Podcast' for the 'enotepodcast' extension.
  *
- * @author	Kasper SkÃ¥rhÃ¸j <kaska@llab.dtu.dk>
+ * @author	Kasper Skårhøj <kaska@llab.dtu.dk>
  */
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
@@ -362,14 +362,14 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 						$resolution = $options['version'];
 						if (isset($data[$idx]['media'][$resolution]))	{
 							//File with given resolution exists, and have not been written to the last ten seconds (upload)
-							if (isset($data[$idx]['media'][$resolution])  && $data[$idx]['media'][$resolution]['_lastWrite']>10)	{
+							//if (isset($data[$idx]['media'][$resolution])  && $data[$idx]['media'][$resolution]['_lastWrite']>10)	{
 
 								$videourl = $this->getUrl($data[$idx]['media'][$resolution]['filename']);
 								$downloadLinks[]='<td><p><a href="'.htmlspecialchars($videourl).'">'.$resolution.' ('.t3lib_div::formatSize($data[$idx]['media'][$resolution]['filesize']).')</a></p></td>';
 								$spilletid = $data[$idx]['media'][$resolution]['duration'];
-							} else {
-								$downloadLinks[]='<td><p>'.$resolution.' <em>(Ved at blive uploaded)</em></p></td>';
-							}
+							//} else {
+							//	$downloadLinks[]='<td><p>'.$resolution.' <em>(Ved at blive uploaded)</em></p></td>';
+							//}
 						} else { // File doesnt exist, display dummy label
 							$downloadLinks[]='<td><p>'.$resolution.'</p></td>';
 						}
@@ -509,26 +509,8 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 			// Read all txt files (with meta data in) + then all media files supported by this extension.
 			$fileArr = t3lib_div::getAllFilesAndFoldersInPath(array(),$absPath,'txt');
 			$fileMedia = t3lib_div::getAllFilesAndFoldersInPath(array(),$absPath,'mp4,m4v,mov,png,jpg');
-			$filesAll = t3lib_div::getAllFilesAndFoldersInPath(array(),$absPath);	// For attachments...ÃŸ
+			$filesAll = t3lib_div::getAllFilesAndFoldersInPath(array(),$absPath);	// For attachments...ß
 			
-							// if($_SERVER['REMOTE_ADDR'] == "192.38.95.65") {
-							 //	print_r($filesAll);
-							// 	echo "-------";
-							// 	if ($handle = opendir($absPath)) {
-							// 	    echo "Directory handle: $handle\n";
-							// 	    echo "Entries:\n";
-
-							// 	    /* This is the correct way to loop over the directory. */
-							// 	    $files = array();
-							// 	    while (false !== ($entry = readdir($handle))) {
-							// 	        //echo filemtime($absPath.$entry)." ".$absPath."$entry\n" . md5($absPath.$entry);
-							// 	        if(is_file($absPath . $entry)){
-							// 	        	$files[md5($absPath.$entry)] = $entry;
-							// 	        }
-							// 	    }
-							// 	    print_r($files);
-							//     }	
-							// }
 			// Find max filemtime in order to check for cached information... (does NOT count in attachments at this time!)
 			$filemtimes=array();
 			foreach($fileArr as $fileName)	{
@@ -643,9 +625,7 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 							break;
 						}
 					}
-					if($_SERVER['REMOTE_ADDR'] == "80.165.170.168") {
-					#	print_r($info);
-					}
+				
 					$data[] = $info;
 					$order[] = $info['pubDate'];
 				}
