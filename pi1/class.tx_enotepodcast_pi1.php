@@ -74,8 +74,8 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 		}
 
 		$GLOBALS['TSFE']->set_no_cache();	
-		if($title = $this->piVars['showDetails']) { // Show details for a single podcast episode
-			if(!($content = $this->podcastDetails($title))) {
+		if($hash = $this->piVars['showDetails']) { // Show details for a single podcast episode
+			if(!($content = $this->podcastDetails($hash))) {
 				$content = $this->pi_getLL('errEpisodeNotFound');
 			}
 		} else { // Show the podcast channel in either HTML or RSS
@@ -233,7 +233,7 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 		echo trim($outputXML);
 		exit; //Prevent template html from showing
 	}
-	function podcastDetails($title) {
+	function podcastDetails($hash) {
 		// TODO: Eliminate duplicate code
 		
 		//Get path to podcast directory
@@ -248,7 +248,7 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 		
 		// Find episode with given title
 		foreach($data as $key => $values) {
-			if (htmlspecialchars(trim($values['title'])) == $title) {
+			if ($values['uniqueHash'] == $hash) {
 				$podcastKey = $key;
 				break;
 			}
@@ -404,11 +404,12 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 					 
 					$thumbnailWidth = intval($this->cObj->data['pi_flexform']['data']['sDEF']['lDEF']['thumbnailSize']['vDEF']);
 					if ($thumbnailWidth<=0)	{$thumbnailWidth = 135;}
+				
 					//Generate HTML output for the current entry
 					$out[$category] .='<tr>
 						<td valign="top">'.$this->getImage($data[$idx]['media']['thumbnail'],0,$thumbnailWidth, false).'</td>
 						<td valign="top">
-						<h2>'.$this->pi_linkTP(htmlspecialchars(trim($data[$idx]['title'])),array($this->prefixId=>array('showDetails'=>htmlspecialchars(trim($data[$idx]['title'])))),1).'</h2>
+						<h2>'.$this->pi_linkTP(htmlspecialchars(trim($data[$idx]['title'])),array($this->prefixId=>array('showDetails'=>$data[$idx]['uniqueHash'])),1).'</h2>
 						<span style="display:block; font-weight: bold; color: green">'.($data[$idx]['conversion']=="active"?"Is currently processing...":"").'</span>
 						<p>'.substr(htmlspecialchars(trim($data[$idx]['description'])),0,200).(strlen(htmlspecialchars(trim($data[$idx]['description']))) > 200 ? " ".$this->pi_linkTP('[...]',array($this->prefixId=>array('showDetails'=>htmlspecialchars(trim($data[$idx]['title'])))),1) : '').'</p>
 						<p><strong>'.$this->pi_getLL('date').':</strong> '.htmlspecialchars(strftime('%d/%m/%Y %R',$data[$idx]['pubDate'])).' - <strong>'.$this->pi_getLL('duration').':</strong> '.htmlspecialchars(trim($spilletid)).'<strong>' . ($data[$idx]['hits']?' - '.$this->pi_getLL('views').':</strong> '.$data[$idx]['hits']:'').'</p>
@@ -536,6 +537,7 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 					// Parse meta data configuration file and do some processing:
 					$lines = t3lib_div::trimExplode(chr(10),$fileContent,1);
 					$info = array();
+					$info['uniqueHash'] = md5($fileAbsPath);
 					foreach($lines as $linecontent)	{
 						// Make sure string is *strictly* valid UTF-8 (argument 'true')
 						mb_detect_encoding($linecontent,'UTF-8',true) == "UTF-8" ? '' : $linecontent = utf8_encode($linecontent);
