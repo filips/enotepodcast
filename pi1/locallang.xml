@@ -11,7 +11,7 @@
 			<label index="totalDuration">Total duration</label>
 			<label index="date">Date</label>
 			<label index="download">Download</label>
-			<label index="noYoutube">No YouTube™ version available</label>
+			<label index="noYoutube">No YouTube version available</label>
 			<label index="videosWithoutCategory">Videos without category</label>
 			<label index="views">Views</label>
 			<label index="errEpisodeNotFound">Error: No podcast episode with the specified title found</label>
@@ -22,7 +22,7 @@
 			<label index="totalDuration">Total spilletid</label>
 			<label index="date">Dato</label>
 			<label index="download">Download</label>
-			<label index="noYoutube">Ingen YouTube™ version tilgængelig</label>
+			<label index="noYoutube">Ingen YouTube version tilgængelig</label>
 			<label index="videosWithoutCategory">Videoer uden kategori</label>
 			<label index="views">Visninger</label>
 			<label index="errEpisodeNotFound">Fejl: Ingen video med den givne titel fundet</label>

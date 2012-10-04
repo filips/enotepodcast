@@ -411,7 +411,7 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 						<td valign="top">
 						<h2>'.$this->pi_linkTP(htmlspecialchars(trim($data[$idx]['title'])),array($this->prefixId=>array('showDetails'=>$data[$idx]['uniqueHash'])),1).'</h2>
 						<span style="display:block; font-weight: bold; color: green">'.($data[$idx]['conversion']=="active"?"Is currently processing...":"").'</span>
-						<p>'.substr(htmlspecialchars(trim($data[$idx]['description'])),0,200).(strlen(htmlspecialchars(trim($data[$idx]['description']))) > 200 ? " ".$this->pi_linkTP('[...]',array($this->prefixId=>array('showDetails'=>htmlspecialchars(trim($data[$idx]['title'])))),1) : '').'</p>
+						<p>'.substr(htmlspecialchars(trim($data[$idx]['description'])),0,200).(strlen(htmlspecialchars(trim($data[$idx]['description']))) > 200 ? " ".$this->pi_linkTP('[...]',array($this->prefixId=>array('showDetails'=>$data[$idx]['uniqueHash'])),1) : '').'</p>
 						<p><strong>'.$this->pi_getLL('date').':</strong> '.htmlspecialchars(strftime('%d/%m/%Y %R',$data[$idx]['pubDate'])).' - <strong>'.$this->pi_getLL('duration').':</strong> '.htmlspecialchars(trim($spilletid)).'<strong>' . ($data[$idx]['hits']?' - '.$this->pi_getLL('views').':</strong> '.$data[$idx]['hits']:'').'</p>
 							'.$attachments.'
 						</td>
