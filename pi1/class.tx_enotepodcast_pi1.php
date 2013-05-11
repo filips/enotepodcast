@@ -64,12 +64,13 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 				"title" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['title']['vDEF'],
 				"TYPO3_SITE_URL" => htmlspecialchars(t3lib_div::getIndpEnv('TYPO3_SITE_URL')),
 				"copyright" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['copyright']['vDEF'],
-				"description>" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['description']['vDEF'],
+				"description" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['description']['vDEF'],
 				"subtitle"=>$this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['subtitle']['vDEF'],
 				"author" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['author']['vDEF'],
 				"author_email" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['author_email']['vDEF'],
 				"image" => (trim($this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['image']['vDEF']) ? htmlspecialchars(t3lib_div::getIndpEnv('TYPO3_SITE_URL').$this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['image']['vDEF']) : ''),
-				"category" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['category']['vDEF']
+				"category" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['category']['vDEF'],
+				"language" => $this->cObj->data['pi_flexform']['data']['sOptions']['lDEF']['language']['vDEF']
 			);
 		}
 
@@ -146,7 +147,6 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 	function RSSfeed($data, $order, $podcast, $onlyPublished) {
 		$metadata = $this->metadata;
 
-
 		$resolution = $podcast['DEFAULT'];
 		if ($rss_key = $this->piVars['additionalRSSkey'])	{
 			if(array_key_exists($rss_key, $podcast['feeds'])) {
@@ -201,13 +201,14 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 			$outputXML = '<?xml version="1.0" encoding="utf-8"?>
 	<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
 	<channel>
-		<title>'.htmlspecialchars($metadata['title']).' '.$titleSuffix.'</title>
+		<title>'.htmlspecialchars($metadata['title']).'</title>
 		<link>'.$metadata['TYPO3_SITE_URL'].'</link>
 		<copyright>'.htmlspecialchars($metadata['copyright']).'</copyright>
 		<description>'.htmlspecialchars($metadata['description']).'</description>
 		<itunes:summary>'.htmlspecialchars($metadata['description']).'</itunes:summary>
 		<itunes:subtitle>'.htmlspecialchars($metadata['subtitle']).'</itunes:subtitle>
 		<itunes:author>'.htmlspecialchars($metadata['author']).'</itunes:author>
+		<language>'.htmlspecialchars($metadata['language']).'</language>
 		<itunes:owner>
 			<itunes:name>'.htmlspecialchars($metadata['author']).'</itunes:name>
 			<itunes:email>'.htmlspecialchars($metadata['author_email']).'</itunes:email>
@@ -222,7 +223,6 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 		<generator>TYPO3, EXT:enotepodcast</generator>
 
 		';
-
 		$outputXML.= $outputItems;
 		$outputXML.='
 		   </channel>
@@ -328,7 +328,7 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 		if ($this->piVars['rss'] || isset($this->piVars['additionalRSSkey']))	{
 			if ($this->piVars['rss']=='HD')	{$this->piVars['additionalRSSkey']='HD';}
 			if ($this->piVars['rss']=='1')	{$this->piVars['additionalRSSkey']='1';}
-			$this->RSSFeed($data, $order, $podcast, $onlyPublished); // Output RSS feed
+			$this->RSSFeed($data, (($this->cObj->data['pi_flexform']['data']['sDEF']['lDEF']['showReverseOrder']['vDEF'] == false) ? array_reverse($order) : $order), $podcast, $onlyPublished); // Output RSS feed
 		} elseif($this->piVars['data'] && $this->podcastLocal) {
 			$this->jsonData($data);
 		} else { //Output podcast list as HTML
@@ -345,6 +345,9 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 			$totalSpilletidSeconds = 0;	
 			if ($this->cObj->data['pi_flexform']['data']['sDEF']['lDEF']['showReverseOrder']['vDEF'] == true)
 				$order = array_reverse($order);
+			
+			$category_order = array();
+
 			// Traverse them, compile item list:
 			foreach($order as $idx)	{
 				if (!isset($data[$idx]['category']) || !$data[$idx]['category']) {
@@ -419,8 +422,17 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 							<table border="1" cellpadding="0" cellspacing="0" style="padding: 0 0 0 0 px; width:100%; background-color: #eeeeee; white-space: nowrap; "><tr>'.implode('</tr><tr>',$downloadLinks).'</tr></table>
 						</td>
 					</tr>';
+					if(!array_key_exists($category, $category_order)) {
+						$category_order[$category] = 0;
+					}
+					if ($data[$idx]['pubDate'] > $category_order[$category]) {
+						$category_order[$category] = $data[$idx]['pubDate'];
+					}
 				}
 			}
+			asort($category_order, SORT_NUMERIC);
+			if ($this->cObj->data['pi_flexform']['data']['sDEF']['lDEF']['showReverseOrder']['vDEF'] == false)
+				$category_order =  array_reverse($category_order);
 			
 			//Compute total playtime
 			$HH=floor($totalSpilletidSeconds/60/60);
@@ -431,7 +443,8 @@ class tx_enotepodcast_pi1 extends tslib_pibase {
 			
 			ksort($out);
 			// Combine html from categories into $outputHTML
-			foreach ($out as $cat => $output) {
+			foreach ($category_order as $cat => $time) {
+				$output = $out[$cat];
 				if($cat != '')
 					$outputHTML .= "<h3>".$cat."</h3><table border='0'>" . $output . "</table>";
 			}

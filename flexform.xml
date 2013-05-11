@@ -135,6 +135,14 @@
 							</config>
 						</TCEforms>
 					</category>
+					<language>
+						<TCEforms>
+							<label>ISO-639 Language:</label>
+							<config>
+								<type>input</type>
+							</config>
+						</TCEforms>
+					</language>
 				</el>
 			</ROOT>
 		</sOptions>
